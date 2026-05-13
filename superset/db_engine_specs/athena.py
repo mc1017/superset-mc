@@ -59,6 +59,7 @@ class AthenaEngineSpec(BaseEngineSpec):
             "@athena.{region_name}.amazonaws.com/{schema_name}"
             "?s3_staging_dir={s3_staging_dir}"
         ),
+        "default_port": 443,
         "drivers": [
             {
                 "name": "PyAthena (REST)",
