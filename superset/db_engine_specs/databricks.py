@@ -233,6 +233,42 @@ class DatabricksHiveEngineSpec(HiveEngineSpec):
     # Note: Primary metadata is in DatabricksPythonConnectorEngineSpec which
     # consolidates all Databricks connection methods. This spec exists for
     # backwards compatibility with Interactive Cluster connections.
+    metadata = {
+        "description": (
+            "Connect to Databricks Interactive Clusters using the Hive (PyHive) "
+            "driver. Use this variant for all-purpose clusters when the Python "
+            "Connector is not available."
+        ),
+        "logo": "databricks.png",
+        "homepage_url": "https://www.databricks.com/",
+        "default_port": 443,
+        "categories": [
+            DatabaseCategory.CLOUD_DATA_WAREHOUSES,
+            DatabaseCategory.ANALYTICAL_DATABASES,
+            DatabaseCategory.HOSTED_OPEN_SOURCE,
+        ],
+        "pypi_packages": ["databricks-dbapi[sqlalchemy]"],
+        "connection_string": (
+            "databricks+pyhive://token:{access_token}@{host}:{port}/{database}"
+        ),
+        "install_instructions": (
+            'echo "databricks-dbapi[sqlalchemy]" >> ./docker/requirements-local.txt'
+        ),
+        "docs_url": ("https://docs.databricks.com/en/integrations/jdbc-odbc-bi.html"),
+        "notes": (
+            "Requires `http_path` to be configured in the engine parameters "
+            "(Advanced > Other > ENGINE PARAMETERS) under `connect_args`. "
+            "For new deployments prefer the Databricks Python Connector spec."
+        ),
+        "parameters": {
+            "access_token": (
+                "Personal access token (Settings > User Settings > Access Tokens)"
+            ),
+            "host": "Server hostname from the cluster JDBC/ODBC settings",
+            "port": "Port (default 443)",
+            "database": "Default database/schema for the connection",
+        },
+    }
 
     _show_functions_column = "function"
 
@@ -265,6 +301,47 @@ class DatabricksODBCEngineSpec(DatabricksBaseEngineSpec):
     # Note: Primary metadata is in DatabricksPythonConnectorEngineSpec which
     # consolidates all Databricks connection methods. This spec exists for
     # backwards compatibility with ODBC connections to SQL Endpoints.
+    metadata = {
+        "description": (
+            "Connect to Databricks SQL Endpoints (serverless SQL warehouses) "
+            "using the ODBC driver. Use this variant for production SQL "
+            "warehouses when a managed ODBC driver is available."
+        ),
+        "logo": "databricks.png",
+        "homepage_url": "https://www.databricks.com/product/databricks-sql",
+        "default_port": 443,
+        "categories": [
+            DatabaseCategory.CLOUD_DATA_WAREHOUSES,
+            DatabaseCategory.ANALYTICAL_DATABASES,
+            DatabaseCategory.HOSTED_OPEN_SOURCE,
+        ],
+        "pypi_packages": ["pyodbc"],
+        "connection_string": (
+            "databricks+pyodbc://token:{access_token}@{host}:{port}/{database}"
+            "?http_path={http_path}"
+        ),
+        "install_instructions": (
+            "Install the Databricks ODBC driver from "
+            "https://www.databricks.com/spark/odbc-drivers-download, then "
+            "add `pyodbc` to ./docker/requirements-local.txt."
+        ),
+        "docs_url": ("https://docs.databricks.com/en/integrations/jdbc-odbc-bi.html"),
+        "notes": (
+            "Requires the Databricks ODBC driver to be installed on the host "
+            "running Superset. `http_path` is taken from the SQL warehouse "
+            "connection details. For new deployments prefer the Databricks "
+            "Python Connector spec."
+        ),
+        "parameters": {
+            "access_token": (
+                "Personal access token (Settings > User Settings > Access Tokens)"
+            ),
+            "host": "Server hostname from the SQL warehouse connection details",
+            "port": "Port (default 443)",
+            "database": "Default database/schema for the connection",
+            "http_path": "HTTP path from the SQL warehouse connection details",
+        },
+    }
 
 
 class DatabricksDynamicBaseEngineSpec(BasicParametersMixin, DatabricksBaseEngineSpec):
@@ -459,6 +536,43 @@ class DatabricksNativeEngineSpec(DatabricksDynamicBaseEngineSpec):
     # Note: Primary metadata is in DatabricksPythonConnectorEngineSpec which
     # consolidates all Databricks connection methods. This spec exists for
     # backwards compatibility with legacy databricks-dbapi connections.
+    metadata = {
+        "description": (
+            "Legacy Databricks connector based on `databricks-dbapi`. New "
+            "deployments should use the Databricks Python Connector spec; "
+            "this variant exists for backwards compatibility."
+        ),
+        "logo": "databricks.png",
+        "homepage_url": "https://www.databricks.com/",
+        "default_port": 443,
+        "categories": [
+            DatabaseCategory.CLOUD_DATA_WAREHOUSES,
+            DatabaseCategory.ANALYTICAL_DATABASES,
+            DatabaseCategory.HOSTED_OPEN_SOURCE,
+        ],
+        "pypi_packages": ["databricks-dbapi[sqlalchemy]"],
+        "connection_string": (
+            "databricks+connector://token:{access_token}@{host}:{port}/{database_name}"
+        ),
+        "install_instructions": (
+            'echo "databricks-dbapi[sqlalchemy]" >> ./docker/requirements-local.txt'
+        ),
+        "docs_url": ("https://docs.databricks.com/en/integrations/jdbc-odbc-bi.html"),
+        "warnings": [
+            (
+                "Deprecated in favor of the Databricks Python Connector. "
+                "Avoid using this driver for new connections."
+            ),
+        ],
+        "parameters": {
+            "access_token": (
+                "Personal access token (Settings > User Settings > Access Tokens)"
+            ),
+            "host": "Server hostname from cluster or SQL warehouse settings",
+            "port": "Port (default 443)",
+            "database_name": "Default database/schema for the connection",
+        },
+    }
     context_key_mapping = {
         **DatabricksDynamicBaseEngineSpec.context_key_mapping,
         "database": "database",
@@ -613,6 +727,7 @@ class DatabricksPythonConnectorEngineSpec(DatabricksDynamicBaseEngineSpec):
             DatabaseCategory.HOSTED_OPEN_SOURCE,
         ],
         "pypi_packages": ["apache-superset[databricks]"],
+        "default_port": 443,
         "install_instructions": "pip install apache-superset[databricks]",
         "connection_string": (
             "databricks://token:{access_token}@{host}:{port}"
