@@ -28,6 +28,7 @@ health_blueprint = Blueprint("health", __name__)
 @health_blueprint.route("/ping")
 @talisman(force_https=False)
 def health() -> FlaskResponse:
+    """Return a simple health-check response for monitoring."""
     stats_logger: BaseStatsLogger = app.config["STATS_LOGGER"]
     stats_logger.incr("health")
     return "OK"
